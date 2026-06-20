@@ -1,0 +1,103 @@
+{
+  "perfiles": {
+    "Offset Estucado": {
+      "proceso": "Offset estucado (Coated)",
+      "tac_maximo": 300,
+      "tac_advertencia": 280,
+      "dpi_minimo": 266,
+      "dpi_ideal": 350,
+      "sangrado_minimo_mm": 3,
+      "color_recomendado": "CMYK",
+      "rgb_es_error": true,
+      "perfil_icc": "ISO Coated v2 / FOGRA39"
+    },
+    "Offset Sin Estucar": {
+      "proceso": "Offset sin estucar (Uncoated)",
+      "tac_maximo": 260,
+      "tac_advertencia": 240,
+      "dpi_minimo": 266,
+      "dpi_ideal": 350,
+      "sangrado_minimo_mm": 3,
+      "color_recomendado": "CMYK",
+      "rgb_es_error": true,
+      "perfil_icc": "PSO Uncoated / FOGRA47"
+    },
+    "Periodico": {
+      "proceso": "Periódico",
+      "tac_maximo": 240,
+      "tac_advertencia": 220,
+      "dpi_minimo": 90,
+      "dpi_ideal": 300,
+      "sangrado_minimo_mm": 3,
+      "color_recomendado": "CMYK",
+      "rgb_es_error": true,
+      "perfil_icc": "ISO Newspaper"
+    },
+    "Gran Formato": {
+      "proceso": "Gran Formato / Lona / Valla / Backlight",
+      "tac_maximo": 260,
+      "tac_advertencia": 240,
+      "dpi_minimo": 72,
+      "dpi_ideal": 150,
+      "sangrado_minimo_mm": 5,
+      "color_recomendado": "CMYK",
+      "rgb_es_error": true,
+      "perfil_icc": "ISO Coated v2"
+    },
+    "Sublimacion": {
+      "proceso": "Sublimación",
+      "tac_maximo": 240,
+      "tac_advertencia": 220,
+      "dpi_minimo": 150,
+      "dpi_ideal": 200,
+      "sangrado_minimo_mm": 3,
+      "color_recomendado": "CMYK",
+      "rgb_es_error": true,
+      "perfil_icc": "ISO Coated v2"
+    },
+    "DTF": {
+      "proceso": "DTF",
+      "tac_maximo": 220,
+      "tac_advertencia": 200,
+      "dpi_minimo": 150,
+      "dpi_ideal": 200,
+      "sangrado_minimo_mm": 3,
+      "color_recomendado": "CMYK",
+      "rgb_es_error": true,
+      "perfil_icc": "ISO Coated v2"
+    },
+    "Flexografia": {
+      "proceso": "Flexografía / Packaging",
+      "tac_maximo": 260,
+      "tac_advertencia": 240,
+      "dpi_minimo": 200,
+      "dpi_ideal": 300,
+      "sangrado_minimo_mm": 3,
+      "color_recomendado": "CMYK",
+      "rgb_es_error": true,
+      "perfil_icc": "ISO Coated v2"
+    },
+    "Serigrafia": {
+      "proceso": "Serigrafía",
+      "tac_maximo": 280,
+      "tac_advertencia": 260,
+      "dpi_minimo": 150,
+      "dpi_ideal": 200,
+      "sangrado_minimo_mm": 3,
+      "color_recomendado": "CMYK",
+      "rgb_es_error": true,
+      "perfil_icc": "ISO Coated v2"
+    },
+    "Rotograbado": {
+      "proceso": "Rotograbado",
+      "tac_maximo": 300,
+      "tac_advertencia": 280,
+      "dpi_minimo": 300,
+      "dpi_ideal": 350,
+      "sangrado_minimo_mm": 3,
+      "color_recomendado": "CMYK",
+      "rgb_es_error": true,
+      "perfil_icc": "ISO Coated v2"
+    }
+  }
+}
