@@ -4,3 +4,4 @@ python-multipart
 pymupdf
 pikepdf
 pillow
+requests

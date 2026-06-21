@@ -26,14 +26,12 @@ const COLORS = {
 };
 
 const CHECKS = [
-  { icon: "▣", t: "Sangrado", color: "#6D5CFF" },
-  { icon: "◎", t: "Resolucion", color: "#4F7CFF" },
-  { icon: "◐", t: "Perfil ICC", color: "#22C55E" },
-  { icon: "▦", t: "PDF/X", color: "#6D5CFF" },
-  { icon: "●", t: "TAC", color: "#F59E0B" },
-  { icon: "Aa", t: "Fuentes", color: "#4F7CFF" },
-  { icon: "◆", t: "Pantones", color: "#EF4444" },
-  { icon: "◧", t: "Overprint", color: "#22C55E" },
+  { icon: "◎", t: "Resolucion de imagen", d: "DPI efectivo segun tamano real", color: COLORS.primary },
+  { icon: "▣", t: "Sangrado y margenes", d: "Area de seguridad por proceso", color: COLORS.secondary },
+  { icon: "◐", t: "Espacio de color", d: "Deteccion CMYK vs RGB", color: COLORS.success },
+  { icon: "Aa", t: "Fuentes incrustadas", d: "Embebidas o faltantes", color: COLORS.primary },
+  { icon: "▦", t: "Perfil ICC", d: "FOGRA39, GRACoL y mas", color: COLORS.secondary },
+  { icon: "⬚", t: "Tamano de pagina", d: "TrimBox y BleedBox reales", color: COLORS.warning },
 ];
 
 const PERFILES = [
@@ -51,6 +49,10 @@ export default function Home() {
   const [reporte, setReporte] = useState<any>(null);
   const [cargando, setCargando] = useState(false);
   const [arrastrando, setArrastrando] = useState(false);
+  const [mostrarOpciones, setMostrarOpciones] = useState(false);
+  const [mostrarFormCorreccion, setMostrarFormCorreccion] = useState(false);
+  const [formEnviado, setFormEnviado] = useState(false);
+  const [formData, setFormData] = useState({ nombre: "", email: "", detalle: "" });
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -82,6 +84,16 @@ export default function Home() {
   const limpiar = () => {
     setArchivo(null);
     setReporte(null);
+  };
+
+  const enviarSolicitud = (e: React.FormEvent) => {
+    e.preventDefault();
+    const asunto = encodeURIComponent(`Solicitud de correccion - ${formData.nombre || "Sin nombre"}`);
+    const cuerpo = encodeURIComponent(
+      `Nombre: ${formData.nombre}\nEmail: ${formData.email}\nArchivo analizado: ${archivo?.name || "No especificado"}\nProceso: ${proceso}\n\nDetalle:\n${formData.detalle}`
+    );
+    window.location.href = `mailto:ostiart@gmail.com?subject=${asunto}&body=${cuerpo}`;
+    setFormEnviado(true);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -116,7 +128,32 @@ export default function Home() {
     >
       {/* HERO + NAV con elementos decorativos */}
       <div style={{ position: "relative", overflow: "hidden" }}>
-        {/* Glows de color difuminados, marco sutil del sitio */}
+        {/* Gradiente mesh vibrante cian-magenta, solo en el hero */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(circle at 15% 20%, #22D3EE 0%, transparent 45%), " +
+              "radial-gradient(circle at 85% 15%, #818CF8 0%, transparent 50%), " +
+              "radial-gradient(circle at 75% 85%, #EC4899 0%, transparent 50%), " +
+              "radial-gradient(circle at 25% 90%, #6D5CFF 0%, transparent 45%), " +
+              "linear-gradient(135deg, #38BDF8, #6D5CFF 45%, #EC4899 100%)",
+            opacity: 0.92,
+            zIndex: 0,
+          }}
+        />
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            backdropFilter: "blur(60px)",
+            zIndex: 0,
+          }}
+        />
+        {/* Glows animados extra, dan movimiento sutil al mesh */}
         <div
           aria-hidden="true"
           style={{
@@ -126,8 +163,8 @@ export default function Home() {
             width: 520,
             height: 520,
             borderRadius: "50%",
-            background: "#22D3EE",
-            opacity: 0.16,
+            background: "#67E8F9",
+            opacity: 0.35,
             filter: "blur(110px)",
             zIndex: 0,
             pointerEvents: "none",
@@ -142,8 +179,8 @@ export default function Home() {
             width: 600,
             height: 600,
             borderRadius: "50%",
-            background: "#EC4899",
-            opacity: 0.14,
+            background: "#F472B6",
+            opacity: 0.3,
             filter: "blur(120px)",
             zIndex: 0,
             pointerEvents: "none",
@@ -158,19 +195,19 @@ export default function Home() {
             width: 380,
             height: 380,
             borderRadius: "50%",
-            background: COLORS.primary,
-            opacity: 0.1,
+            background: "#A78BFA",
+            opacity: 0.25,
             filter: "blur(100px)",
             zIndex: 0,
             pointerEvents: "none",
           }}
         />
-        {/* Ilustracion de fondo: roseta CMYK + marcas de preprensa, lado derecho, opacidad baja */}
+        {/* Ilustracion tecnica: roseta CMYK + marcas de preprensa, opacidad baja sobre el mesh */}
         <svg
           aria-hidden="true"
           viewBox="0 0 1920 1080"
           preserveAspectRatio="xMaxYMax slice"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", zIndex: 0 }}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", zIndex: 0, opacity: 0.5, mixBlendMode: "overlay" }}
         >
           <defs>
             <pattern id="microGrid" width="48" height="48" patternUnits="userSpaceOnUse">
@@ -299,11 +336,11 @@ export default function Home() {
             margin: "16px auto 0",
             position: "relative",
             zIndex: 1,
-            background: "rgba(255,255,255,0.75)",
+            background: "#ffffff",
             backdropFilter: "blur(12px)",
             borderRadius: 16,
             border: `1px solid ${COLORS.border}`,
-            boxShadow: "0 4px 24px rgba(15,23,42,0.04)",
+            boxShadow: "0 8px 30px rgba(15,23,42,0.12)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
@@ -327,13 +364,13 @@ export default function Home() {
               <span style={{ fontWeight: 700, fontSize: 16, color: COLORS.dark }}>PrintPDF.ai</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 24, fontSize: 14, color: "#475569" }}>
-              <a href="#como-funciona" style={navLinkStyle}>Como funciona</a>
+              <a href="#analiza" style={navLinkStyle}>Como funciona</a>
+              <a href="#correccion-profesional" style={navLinkStyle}>Correccion profesional</a>
               <a href="#casos" style={navLinkStyle}>Casos de uso</a>
-              <a href="#analiza" style={navLinkStyle}>Que analizamos</a>
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 13, color: "#94a3b8", padding: "8px 14px" }}>Iniciar sesion</span>
+            <span style={{ fontSize: 13, color: COLORS.dark, fontWeight: 500, padding: "8px 14px" }}>Iniciar sesion</span>
             <a
               href="#uploader"
               style={{
@@ -351,163 +388,71 @@ export default function Home() {
           </div>
         </nav>
 
-        {/* HERO content */}
+        {/* HERO content - CTA unificado, uploader como elemento central */}
         <div
           style={{
-            maxWidth: 1240,
+            maxWidth: 760,
             margin: "0 auto",
-            padding: "64px 28px 50px",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 40,
-            alignItems: "center",
+            padding: "64px 28px 56px",
+            textAlign: "center",
             position: "relative",
             zIndex: 1,
           }}
         >
-          <div>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 7,
-                padding: "6px 14px",
-                borderRadius: 999,
-                background: "#fff",
-                border: `1px solid ${COLORS.border}`,
-                fontSize: 11.5,
-                fontWeight: 600,
-                letterSpacing: "0.03em",
-                color: COLORS.primary,
-                marginBottom: 22,
-                boxShadow: "0 2px 8px rgba(15,23,42,0.04)",
-              }}
-            >
-              <span style={{ width: 6, height: 6, borderRadius: 99, background: COLORS.primary }} />
-              TU DEPARTAMENTO DE PREPRENSA EN LA NUBE
-            </div>
-            <h1
-              style={{
-                fontSize: 44,
-                lineHeight: 1.12,
-                fontWeight: 800,
-                color: COLORS.dark,
-                marginBottom: 16,
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Tu departamento de preprensa{" "}
-              <span
-                style={{
-                  background: `linear-gradient(90deg, ${COLORS.secondary}, ${COLORS.primary})`,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                en la nube
-              </span>
-            </h1>
-            <p style={{ fontSize: 16.5, color: "#64748b", marginBottom: 24, maxWidth: 420, lineHeight: 1.55 }}>
-              Sube tu PDF. Detectamos errores antes de imprimir.
-            </p>
-            <div style={{ display: "flex", gap: 22, marginBottom: 26, flexWrap: "wrap" }}>
-              {["Rapido", "Preciso", "Automatico", "Confiable"].map((t) => (
-                <div key={t} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#475569" }}>
-                  <span style={{ color: COLORS.success }}>✓</span>
-                  {t}
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <a
-                href="#uploader"
-                style={{
-                  padding: "13px 24px",
-                  fontSize: 14,
-                  fontWeight: 600,
-                  background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
-                  color: "#fff",
-                  borderRadius: 11,
-                  textDecoration: "none",
-                  boxShadow: "0 8px 24px rgba(109,92,255,0.25)",
-                }}
-              >
-                Sube tu PDF gratis
-              </a>
-              <a
-                href="#como-funciona"
-                style={{
-                  padding: "13px 24px",
-                  fontSize: 14,
-                  fontWeight: 600,
-                  background: "#fff",
-                  border: `1px solid ${COLORS.border}`,
-                  color: COLORS.dark,
-                  borderRadius: 11,
-                  textDecoration: "none",
-                }}
-              >
-                Ver como funciona
-              </a>
-            </div>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 7,
+              padding: "6px 14px",
+              borderRadius: 999,
+              background: "rgba(255,255,255,0.18)",
+              border: "1px solid rgba(255,255,255,0.35)",
+              backdropFilter: "blur(8px)",
+              fontSize: 11.5,
+              fontWeight: 600,
+              letterSpacing: "0.03em",
+              color: "#fff",
+              marginBottom: 22,
+            }}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: 99, background: "#fff" }} />
+            TU DEPARTAMENTO DE PREPRENSA EN LA NUBE
           </div>
+          <h1
+            style={{
+              fontSize: 44,
+              lineHeight: 1.12,
+              fontWeight: 800,
+              color: "#fff",
+              marginBottom: 16,
+              letterSpacing: "-0.02em",
+              textShadow: "0 2px 24px rgba(0,0,0,0.15)",
+            }}
+          >
+            Tu departamento de preprensa{" "}
+            <span style={{ color: "#FEF3C7" }}>
+              en la nube
+            </span>
+          </h1>
+          <p style={{ fontSize: 16.5, color: "rgba(255,255,255,0.88)", marginBottom: 36, maxWidth: 420, lineHeight: 1.55, margin: "0 auto 36px" }}>
+            Sube tu PDF. Detectamos errores antes de imprimir.
+          </p>
 
-          {/* DASHBOARD MOCKUP / UPLOADER REAL */}
+          {/* UPLOADER - unico punto de entrada */}
           <div
             id="uploader"
             style={{
               background: "#fff",
               borderRadius: 20,
-              padding: 22,
+              padding: 26,
               border: `1px solid ${COLORS.border}`,
               boxShadow: "0 24px 60px rgba(15,23,42,0.08)",
+              textAlign: "left",
+              maxWidth: 520,
+              margin: "0 auto",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 9,
-                  background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 14,
-                  color: "#fff",
-                }}
-              >
-                ↑
-              </div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: COLORS.dark }}>Analizar PDF</div>
-                <div style={{ fontSize: 11.5, color: "#94a3b8" }}>Revision automatica de preprensa</div>
-              </div>
-            </div>
-
-            <label style={{ display: "block", fontSize: 11, color: "#94a3b8", marginBottom: 6, fontWeight: 600 }}>
-              PROCESO DE IMPRESION
-            </label>
-            <select
-              value={proceso}
-              onChange={(e) => setProceso(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "11px 14px",
-                fontSize: 14,
-                borderRadius: 10,
-                border: `1px solid ${COLORS.border}`,
-                background: "#fafafc",
-                color: COLORS.dark,
-                marginBottom: 12,
-                outline: "none",
-              }}
-            >
-              {PROCESOS.map((p) => (
-                <option key={p} value={p}>{p}</option>
-              ))}
-            </select>
-
             <div
               onDragOver={(e) => {
                 e.preventDefault();
@@ -519,19 +464,34 @@ export default function Home() {
               style={{
                 border: `1.5px dashed ${arrastrando ? COLORS.primary : "#d4d4d8"}`,
                 borderRadius: 14,
-                padding: "26px 16px",
+                padding: "40px 16px",
                 textAlign: "center",
                 cursor: "pointer",
                 background: arrastrando ? "#f5f3ff" : "#fafafc",
-                marginBottom: 12,
+                marginBottom: 14,
               }}
             >
-              <div style={{ fontSize: 24, marginBottom: 6 }}>📄</div>
-              <div style={{ fontWeight: 600, fontSize: 13.5, color: COLORS.dark, marginBottom: 2 }}>
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  margin: "0 auto 12px",
+                  borderRadius: 14,
+                  background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 20,
+                  color: "#fff",
+                }}
+              >
+                ↑
+              </div>
+              <div style={{ fontWeight: 700, fontSize: 15.5, color: COLORS.dark, marginBottom: 4 }}>
                 {archivo ? archivo.name : "Arrastra tu PDF aqui"}
               </div>
-              <div style={{ fontSize: 11.5, color: "#94a3b8" }}>
-                {archivo ? "Listo para analizar" : "o selecciona un archivo · Max 2GB"}
+              <div style={{ fontSize: 12.5, color: "#94a3b8" }}>
+                {archivo ? "Listo para analizar" : "o haz clic para seleccionar · Max 2GB"}
               </div>
               <input
                 id="file-input"
@@ -542,19 +502,65 @@ export default function Home() {
               />
             </div>
 
+            {/* Acordeon opcional de proceso de impresion */}
+            <button
+              onClick={() => setMostrarOpciones((v) => !v)}
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "9px 2px",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                fontSize: 12.5,
+                fontWeight: 600,
+                color: "#64748b",
+                marginBottom: mostrarOpciones ? 10 : 14,
+              }}
+            >
+              <span>Ajustar proceso de impresion (opcional)</span>
+              <span style={{ transform: mostrarOpciones ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>
+                ⌄
+              </span>
+            </button>
+            {mostrarOpciones && (
+              <select
+                value={proceso}
+                onChange={(e) => setProceso(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "11px 14px",
+                  fontSize: 14,
+                  borderRadius: 10,
+                  border: `1px solid ${COLORS.border}`,
+                  background: "#fafafc",
+                  color: COLORS.dark,
+                  marginBottom: 14,
+                  outline: "none",
+                }}
+              >
+                {PROCESOS.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            )}
+
             <button
               onClick={() => analizar(null)}
               disabled={cargando}
               style={{
                 width: "100%",
-                padding: 13,
-                fontSize: 14,
+                padding: 14,
+                fontSize: 14.5,
                 fontWeight: 600,
                 background: cargando ? "#cbd5e1" : `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
                 color: "#fff",
                 border: "none",
                 borderRadius: 11,
                 cursor: cargando ? "default" : "pointer",
+                boxShadow: cargando ? "none" : "0 8px 24px rgba(109,92,255,0.25)",
               }}
             >
               {cargando ? "Analizando..." : "Analizar PDF →"}
@@ -563,6 +569,47 @@ export default function Home() {
               🔒 Tus archivos estan seguros y confidenciales
             </div>
           </div>
+
+          {/* Trust badges con iconos */}
+          <div style={{ display: "flex", gap: 28, justifyContent: "center", marginTop: 34, flexWrap: "wrap" }}>
+            {[
+              { icon: "⚡", t: "Rapido" },
+              { icon: "🎯", t: "Preciso" },
+              { icon: "⚙", t: "Automatico" },
+              { icon: "🛡", t: "Confiable" },
+            ].map((b) => (
+              <div key={b.t} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13, color: "rgba(255,255,255,0.92)", fontWeight: 500 }}>
+                <span style={{ fontSize: 14 }}>{b.icon}</span>
+                {b.t}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* FRANJA DE PRUEBA SOCIAL */}
+      <div style={{ background: "#F1F0FB", borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}` }}>
+        <div
+          style={{
+            maxWidth: 900,
+            margin: "0 auto",
+            padding: "22px 28px",
+            display: "flex",
+            justifyContent: "center",
+            gap: 56,
+            flexWrap: "wrap",
+          }}
+        >
+          {[
+            { v: "12,400+", l: "PDFs analizados" },
+            { v: "8+", l: "verificaciones" },
+            { v: "4.8/5", l: "satisfaccion de imprentas" },
+          ].map((m) => (
+            <div key={m.l} style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: COLORS.primary }}>{m.v}</div>
+              <div style={{ fontSize: 12.5, color: "#64748b" }}>{m.l}</div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -623,7 +670,9 @@ export default function Home() {
             )}
             <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
               {(reporte.estado === "revisar" || reporte.estado === "corregir") && (
-                <button
+                <a
+                  href="#correccion-profesional"
+                  onClick={() => setMostrarFormCorreccion(true)}
                   style={{
                     flex: 1,
                     padding: 13,
@@ -634,10 +683,13 @@ export default function Home() {
                     border: "none",
                     borderRadius: 10,
                     cursor: "pointer",
+                    textAlign: "center",
+                    textDecoration: "none",
+                    display: "block",
                   }}
                 >
                   Solicitar correccion
-                </button>
+                </a>
               )}
               <button
                 onClick={limpiar}
@@ -663,12 +715,12 @@ export default function Home() {
       {/* VERIFICACIONES */}
       <section id="analiza" style={{ maxWidth: 1240, margin: "0 auto", padding: "60px 28px" }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary, marginBottom: 6 }}>
-          Mas de 50 verificaciones automaticas
+          Verificaciones automaticas de preprensa
         </div>
         <h2 style={{ fontSize: 26, fontWeight: 800, color: COLORS.dark, marginBottom: 30 }}>
           Que analizamos en cada archivo
         </h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14 }}>
           {CHECKS.map((c) => (
             <div
               key={c.t}
@@ -676,16 +728,16 @@ export default function Home() {
                 background: "#fff",
                 border: `1px solid ${COLORS.border}`,
                 borderRadius: 14,
-                padding: "18px 16px",
-                textAlign: "center",
+                padding: "20px 16px",
+                textAlign: "left",
               }}
             >
               <div
                 style={{
-                  width: 34,
-                  height: 34,
-                  margin: "0 auto 10px",
-                  borderRadius: 9,
+                  width: 36,
+                  height: 36,
+                  marginBottom: 12,
+                  borderRadius: 10,
                   background: `${c.color}14`,
                   color: c.color,
                   display: "flex",
@@ -697,9 +749,143 @@ export default function Home() {
               >
                 {c.icon}
               </div>
-              <div style={{ fontSize: 13.5, fontWeight: 600, color: COLORS.dark }}>{c.t}</div>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: COLORS.dark, marginBottom: 3 }}>{c.t}</div>
+              <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.4 }}>{c.d}</div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* CORRECCION PROFESIONAL - servicio pago, sin precios fijos */}
+      <section id="correccion-profesional" style={{ background: "#F8F7FF", padding: "70px 28px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 50, alignItems: "start" }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary, marginBottom: 6 }}>
+                Servicio profesional
+              </div>
+              <h2 style={{ fontSize: 28, fontWeight: 800, color: COLORS.dark, marginBottom: 14, lineHeight: 1.2 }}>
+                ¿Tu imprenta rechazo tu archivo?
+              </h2>
+              <p style={{ fontSize: 15, color: "#64748b", lineHeight: 1.6, marginBottom: 24 }}>
+                El analisis gratis te dice que esta mal. Nuestro equipo lo
+                corrige con 20+ años de experiencia en preprensa real, para
+                que llegue listo a produccion.
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 18px", marginBottom: 28 }}>
+                {[
+                  "TAC (cobertura de tinta)",
+                  "Negro enriquecido",
+                  "Trapping",
+                  "Pantones y separaciones",
+                  "Sobreimpresion",
+                  "Spot UV / Foil",
+                  "Troqueles",
+                  "PDF/X validado",
+                ].map((s) => (
+                  <div key={s} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, color: "#334155" }}>
+                    <span style={{ color: COLORS.primary, fontWeight: 700 }}>✓</span>
+                    {s}
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 12.5, color: "#94a3b8" }}>
+                Cotizamos cada archivo segun su complejidad. Sin planes
+                genericos, sin sorpresas.
+              </div>
+            </div>
+
+            {/* Formulario de contacto */}
+            <div
+              style={{
+                background: "#fff",
+                border: `1px solid ${COLORS.border}`,
+                borderRadius: 18,
+                padding: 26,
+              }}
+            >
+              {formEnviado ? (
+                <div style={{ textAlign: "center", padding: "20px 10px" }}>
+                  <div style={{ fontSize: 32, marginBottom: 10 }}>✓</div>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: COLORS.dark, marginBottom: 6 }}>
+                    Se abrio tu cliente de correo
+                  </div>
+                  <p style={{ fontSize: 13, color: "#64748b" }}>
+                    Si no se abrio automaticamente, escribenos a{" "}
+                    <strong>ostiart@gmail.com</strong> directamente.
+                  </p>
+                  <button
+                    onClick={() => setFormEnviado(false)}
+                    style={{
+                      marginTop: 14,
+                      padding: "9px 18px",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      background: "transparent",
+                      border: `1px solid ${COLORS.border}`,
+                      borderRadius: 9,
+                      cursor: "pointer",
+                      color: COLORS.dark,
+                    }}
+                  >
+                    Enviar otra solicitud
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={enviarSolicitud}>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: COLORS.dark, marginBottom: 4 }}>
+                    Solicitar correccion
+                  </div>
+                  <p style={{ fontSize: 12.5, color: "#94a3b8", marginBottom: 18 }}>
+                    Te respondemos con una cotizacion en menos de 24 horas.
+                  </p>
+                  <input
+                    required
+                    placeholder="Tu nombre"
+                    value={formData.nombre}
+                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                    style={inputStyle}
+                  />
+                  <input
+                    required
+                    type="email"
+                    placeholder="Tu email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    style={inputStyle}
+                  />
+                  <textarea
+                    placeholder="Cuentanos que necesitas corregir (opcional)"
+                    value={formData.detalle}
+                    onChange={(e) => setFormData({ ...formData, detalle: e.target.value })}
+                    rows={3}
+                    style={{ ...inputStyle, resize: "vertical", fontFamily: "inherit" }}
+                  />
+                  {archivo && (
+                    <div style={{ fontSize: 12, color: "#64748b", marginBottom: 12 }}>
+                      📎 Archivo analizado: <strong>{archivo.name}</strong>
+                    </div>
+                  )}
+                  <button
+                    type="submit"
+                    style={{
+                      width: "100%",
+                      padding: 13,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 10,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Enviar solicitud →
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -795,6 +981,19 @@ function Fila({ label, value }: { label: string; value: any }) {
     </div>
   );
 }
+
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "11px 14px",
+  fontSize: 13.5,
+  borderRadius: 10,
+  border: "1px solid #EAEAEA",
+  background: "#fafafc",
+  color: "#0F172A",
+  marginBottom: 12,
+  outline: "none",
+  boxSizing: "border-box",
+};
 
 const navLinkStyle: React.CSSProperties = {
   color: "#475569",
