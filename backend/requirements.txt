@@ -4,4 +4,5 @@ python-multipart
 pymupdf
 pikepdf
 pillow
-requests
+httpx
+python-dotenv
