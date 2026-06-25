@@ -48,6 +48,8 @@ export default function Home() {
   const [proceso, setProceso] = useState("Offset Estucado");
   const [reporte, setReporte] = useState<any>(null);
   const [cargando, setCargando] = useState(false);
+  const [enviandoForm, setEnviandoForm] = useState(false);
+  const [errorForm, setErrorForm] = useState("");
   const [arrastrando, setArrastrando] = useState(false);
   const [mostrarOpciones, setMostrarOpciones] = useState(false);
   const [mostrarFormCorreccion, setMostrarFormCorreccion] = useState(false);
@@ -86,14 +88,34 @@ export default function Home() {
     setReporte(null);
   };
 
-  const enviarSolicitud = (e: React.FormEvent) => {
+  const enviarSolicitud = async (e: React.FormEvent) => {
     e.preventDefault();
-    const asunto = encodeURIComponent(`Solicitud de correccion - ${formData.nombre || "Sin nombre"}`);
-    const cuerpo = encodeURIComponent(
-      `Nombre: ${formData.nombre}\nEmail: ${formData.email}\nArchivo analizado: ${archivo?.name || "No especificado"}\nProceso: ${proceso}\n\nDetalle:\n${formData.detalle}`
-    );
-    window.location.href = `mailto:ostiart@gmail.com?subject=${asunto}&body=${cuerpo}`;
-    setFormEnviado(true);
+    setEnviandoForm(true);
+    setErrorForm("");
+
+    const formBody = new FormData();
+    formBody.append("nombre", formData.nombre);
+    formBody.append("email", formData.email);
+    formBody.append("detalle", formData.detalle);
+    formBody.append("archivo_nombre", archivo?.name || "");
+    formBody.append("proceso", proceso);
+
+    try {
+      const res = await fetch(`${API_URL}/solicitar-correccion`, {
+        method: "POST",
+        body: formBody,
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setFormEnviado(true);
+      } else {
+        setErrorForm("No se pudo enviar. Intenta de nuevo o escribenos a ostiart@gmail.com");
+      }
+    } catch (error) {
+      setErrorForm("Error de conexion. Intenta de nuevo o escribenos a ostiart@gmail.com");
+    } finally {
+      setEnviandoForm(false);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -808,14 +830,17 @@ export default function Home() {
                 <div style={{ textAlign: "center", padding: "20px 10px" }}>
                   <div style={{ fontSize: 32, marginBottom: 10 }}>✓</div>
                   <div style={{ fontWeight: 700, fontSize: 15, color: COLORS.dark, marginBottom: 6 }}>
-                    Se abrio tu cliente de correo
+                    Solicitud enviada
                   </div>
                   <p style={{ fontSize: 13, color: "#64748b" }}>
-                    Si no se abrio automaticamente, escribenos a{" "}
-                    <strong>ostiart@gmail.com</strong> directamente.
+                    Te respondemos a tu email en menos de 24 horas con una
+                    cotizacion.
                   </p>
                   <button
-                    onClick={() => setFormEnviado(false)}
+                    onClick={() => {
+                      setFormEnviado(false);
+                      setFormData({ nombre: "", email: "", detalle: "" });
+                    }}
                     style={{
                       marginTop: 14,
                       padding: "9px 18px",
@@ -866,21 +891,27 @@ export default function Home() {
                       📎 Archivo analizado: <strong>{archivo.name}</strong>
                     </div>
                   )}
+                  {errorForm && (
+                    <div style={{ fontSize: 12.5, color: COLORS.error, marginBottom: 12 }}>
+                      {errorForm}
+                    </div>
+                  )}
                   <button
                     type="submit"
+                    disabled={enviandoForm}
                     style={{
                       width: "100%",
                       padding: 13,
                       fontSize: 14,
                       fontWeight: 600,
-                      background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
+                      background: enviandoForm ? "#cbd5e1" : `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
                       color: "#fff",
                       border: "none",
                       borderRadius: 10,
-                      cursor: "pointer",
+                      cursor: enviandoForm ? "default" : "pointer",
                     }}
                   >
-                    Enviar solicitud →
+                    {enviandoForm ? "Enviando..." : "Enviar solicitud →"}
                   </button>
                 </form>
               )}

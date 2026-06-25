@@ -3,8 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 import tempfile
 import os
 import uuid
-import requests
+import httpx
 from analizador import analizar_pdf
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI()
 
@@ -30,11 +32,9 @@ async def analizar(
     proceso: str = Form(...)
 ):
     contenido = await archivo.read()
-
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         tmp.write(contenido)
         ruta_tmp = tmp.name
-
     try:
         reporte = analizar_pdf(ruta_tmp, proceso)
         id_reporte = str(uuid.uuid4())
@@ -73,24 +73,26 @@ async def solicitar_correccion(
     """
 
     try:
-        respuesta = requests.post(
-            "https://api.resend.com/emails",
-            headers={
-                "Authorization": f"Bearer {RESEND_API_KEY}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "from": "PrintPDF.ai <onboarding@resend.dev>",
-                "to": [EMAIL_DESTINO],
-                "reply_to": email,
-                "subject": f"Solicitud de correccion - {nombre}",
-                "html": cuerpo_html,
-            },
-            timeout=15,
-        )
+        async with httpx.AsyncClient(timeout=httpx.Timeout(30.0, connect=10.0)) as client:
+            respuesta = await client.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {RESEND_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": "PrintPDF.ai <onboarding@resend.dev>",
+                    "to": [EMAIL_DESTINO],
+                    "reply_to": email,
+                    "subject": f"Solicitud de correccion - {nombre}",
+                    "html": cuerpo_html,
+                },
+            )
         if respuesta.status_code in (200, 201):
             return {"ok": True}
         else:
             return {"ok": False, "error": respuesta.text}
+    except httpx.TimeoutException:
+        return {"ok": False, "error": "Timeout al conectar con Resend."}
     except Exception as e:
         return {"ok": False, "error": str(e)}
