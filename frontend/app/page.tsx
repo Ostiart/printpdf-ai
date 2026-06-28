@@ -991,14 +991,202 @@ export default function Home() {
 
       <footer
         style={{
-          textAlign: "center",
-          padding: "24px",
-          fontSize: 12,
-          color: "#94a3b8",
+          background: "#fff",
           borderTop: `1px solid ${COLORS.border}`,
+          padding: "56px 28px 32px",
         }}
       >
-        PrintPDF.ai — Sube tu archivo, te decimos si se imprimira correctamente.
+        <div style={{ maxWidth: 1240, margin: "0 auto" }}>
+          {/* Top row: logo + columnas */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1.6fr 1fr 1fr 1fr",
+              gap: 40,
+              marginBottom: 48,
+            }}
+          >
+            {/* Logo + descripcion */}
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 14 }}>
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 10,
+                    background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 700,
+                    fontSize: 14,
+                    color: "#fff",
+                    flexShrink: 0,
+                  }}
+                >
+                  P
+                </div>
+                <span
+                  style={{
+                    fontWeight: 800,
+                    fontSize: 17,
+                    background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  PrintPDF.ai
+                </span>
+              </div>
+              <p style={{ fontSize: 13.5, color: "#64748b", lineHeight: 1.6, maxWidth: 240, margin: 0 }}>
+                Tu departamento de preprensa en la nube. Detectamos errores antes de imprimir.
+              </p>
+              {/* Redes sociales */}
+              <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+                {/* LinkedIn */}
+                <span
+                  title="LinkedIn"
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: 8,
+                    border: `1px solid ${COLORS.border}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "default",
+                    color: "#64748b",
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                    <rect x="2" y="9" width="4" height="12"/>
+                    <circle cx="4" cy="4" r="2"/>
+                  </svg>
+                </span>
+                {/* Twitter / X */}
+                <span
+                  title="Twitter"
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: 8,
+                    border: `1px solid ${COLORS.border}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "default",
+                    color: "#64748b",
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                </span>
+                {/* Instagram */}
+                <span
+                  title="Instagram"
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: 8,
+                    border: `1px solid ${COLORS.border}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "default",
+                    color: "#64748b",
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                    <circle cx="12" cy="12" r="4"/>
+                    <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+
+            {/* Navegacion */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.dark, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 16 }}>
+                Producto
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
+                {[
+                  { label: "Como funciona", href: "#analiza" },
+                  { label: "Correccion profesional", href: "#correccion-profesional" },
+                  { label: "Casos de uso", href: "#casos" },
+                ].map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    style={{ fontSize: 13.5, color: "#64748b", textDecoration: "none", fontWeight: 400 }}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.dark, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 16 }}>
+                Legal
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
+                {[
+                  { label: "Terminos de uso", href: "#" },
+                  { label: "Privacidad", href: "#" },
+                ].map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    style={{ fontSize: 13.5, color: "#64748b", textDecoration: "none", fontWeight: 400 }}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Contacto / CTA */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.dark, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 16 }}>
+                Empezar
+              </div>
+              <a
+                href="#uploader"
+                style={{
+                  display: "inline-block",
+                  padding: "10px 18px",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
+                  color: "#fff",
+                  borderRadius: 9,
+                  textDecoration: "none",
+                }}
+              >
+                Analizar PDF gratis →
+              </a>
+              <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 12, lineHeight: 1.5 }}>
+                Sin registro.<br />Sin tarjeta de credito.
+              </p>
+            </div>
+          </div>
+
+          {/* Divisor */}
+          <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>
+              © 2025 PrintPDF.ai — Todos los derechos reservados.
+            </span>
+            <span style={{ fontSize: 12, color: "#cbd5e1" }}>
+              Hecho para imprentas, disenadores y agencias.
+            </span>
+          </div>
+        </div>
       </footer>
     </div>
   );
