@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const PROCESOS = [
   "Offset Estucado",
@@ -43,6 +43,15 @@ const PERFILES = [
   { t: "Gran formato", d: "DPI correcto siempre." },
 ];
 
+const PANEL_CHECKS = [
+  { label: "Sangrado", ok: true },
+  { label: "Resolución", ok: true },
+  { label: "Fuentes", ok: true },
+  { label: "Perfil ICC", ok: false },
+  { label: "TAC", ok: false },
+  { label: "PDF/X", ok: true },
+];
+
 export default function Home() {
   const [archivo, setArchivo] = useState<File | null>(null);
   const [proceso, setProceso] = useState("Offset Estucado");
@@ -55,6 +64,21 @@ export default function Home() {
   const [mostrarFormCorreccion, setMostrarFormCorreccion] = useState(false);
   const [formEnviado, setFormEnviado] = useState(false);
   const [formData, setFormData] = useState({ nombre: "", email: "", detalle: "" });
+  const [panelFase, setPanelFase] = useState(0);
+
+  // Animación del panel de inspección: 0=spinner, 1-6=checklist, 7=score, 8=botón → loop
+  useEffect(() => {
+    const delays = [1800, 500, 500, 500, 500, 500, 500, 700, 3000];
+    let timeoutId: ReturnType<typeof setTimeout>;
+    let fase = 0;
+    const avanzar = () => {
+      fase = (fase + 1) % 9;
+      setPanelFase(fase);
+      timeoutId = setTimeout(avanzar, delays[fase]);
+    };
+    timeoutId = setTimeout(avanzar, delays[0]);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -145,467 +169,245 @@ export default function Home() {
         minHeight: "100vh",
         background: COLORS.bg,
         color: COLORS.dark,
-        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        fontFamily: "var(--font-plus-jakarta-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}
     >
-      {/* HERO + NAV con elementos decorativos */}
-      <div style={{ position: "relative", overflow: "hidden" }}>
-        {/* Gradiente mesh vibrante cian-magenta, solo en el hero */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(circle at 15% 20%, #22D3EE 0%, transparent 45%), " +
-              "radial-gradient(circle at 85% 15%, #818CF8 0%, transparent 50%), " +
-              "radial-gradient(circle at 75% 85%, #EC4899 0%, transparent 50%), " +
-              "radial-gradient(circle at 25% 90%, #6D5CFF 0%, transparent 45%), " +
-              "linear-gradient(135deg, #38BDF8, #6D5CFF 45%, #EC4899 100%)",
-            opacity: 0.92,
-            zIndex: 0,
-          }}
-        />
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: 0,
-            backdropFilter: "blur(60px)",
-            zIndex: 0,
-          }}
-        />
-        {/* Glows animados extra, dan movimiento sutil al mesh */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            top: -180,
-            left: -180,
-            width: 520,
-            height: 520,
-            borderRadius: "50%",
-            background: "#67E8F9",
-            opacity: 0.35,
-            filter: "blur(110px)",
-            zIndex: 0,
-            pointerEvents: "none",
-          }}
-        />
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            bottom: -220,
-            right: -160,
-            width: 600,
-            height: 600,
-            borderRadius: "50%",
-            background: "#F472B6",
-            opacity: 0.3,
-            filter: "blur(120px)",
-            zIndex: 0,
-            pointerEvents: "none",
-          }}
-        />
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            top: "30%",
-            right: -100,
-            width: 380,
-            height: 380,
-            borderRadius: "50%",
-            background: "#A78BFA",
-            opacity: 0.25,
-            filter: "blur(100px)",
-            zIndex: 0,
-            pointerEvents: "none",
-          }}
-        />
-        {/* Ilustracion tecnica: roseta CMYK + marcas de preprensa, opacidad baja sobre el mesh */}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 1920 1080"
-          preserveAspectRatio="xMaxYMax slice"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", zIndex: 0, opacity: 0.5, mixBlendMode: "overlay" }}
-        >
+      {/* HERO — navy, centrado estilo WeTransfer */}
+      <div style={{ position: "relative", overflow: "hidden", background: "#0D0B1E", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+
+        {/* Glows ambientales */}
+        <div aria-hidden="true" style={{ position: "absolute", top: -160, left: -160, width: 560, height: 560, borderRadius: "50%", background: "#00E5FF", opacity: 0.06, filter: "blur(120px)", pointerEvents: "none" }} />
+        <div aria-hidden="true" style={{ position: "absolute", bottom: -160, right: -160, width: 620, height: 620, borderRadius: "50%", background: "#FF2D78", opacity: 0.06, filter: "blur(130px)", pointerEvents: "none" }} />
+        <div aria-hidden="true" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 800, height: 400, borderRadius: "50%", background: "#6D5CFF", opacity: 0.04, filter: "blur(100px)", pointerEvents: "none" }} />
+
+        {/* Elementos de preprensa sutiles en SVG */}
+        <svg aria-hidden="true" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
           <defs>
-            <pattern id="microGrid" width="48" height="48" patternUnits="userSpaceOnUse">
-              <path d="M 48 0 L 0 0 0 48" fill="none" stroke={COLORS.dark} strokeWidth="0.5" />
-            </pattern>
-            <pattern id="halftoneScatter" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
-              <circle cx="13" cy="13" r="2.2" fill={COLORS.primary} opacity="0.5" />
+            <pattern id="finegrid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5" />
             </pattern>
           </defs>
-
-          {/* Grid tecnico muy sutil, solo lado derecho */}
-          <rect x="900" width="1020" height="1080" fill="url(#microGrid)" opacity="0.05" />
-
-          {/* Roseta CMYK: anillos concentricos en esquina inferior derecha */}
-          <g transform="translate(1620,1000)" opacity="0.9">
-            {[...Array(10)].map((_, i) => {
-              const colors = ["#4F7CFF", "#EF4444", "#F59E0B", "#0F172A"];
-              const r = 90 + i * 38;
-              return (
-                <circle
-                  key={i}
-                  cx="0"
-                  cy="0"
-                  r={r}
-                  fill="none"
-                  stroke={colors[i % 4]}
-                  strokeWidth="1.4"
-                  opacity={0.1 - i * 0.005}
-                />
-              );
-            })}
-            {/* Puntos de semitono dentro de la roseta, angulos CMYK reales */}
-            <g transform="rotate(15)" opacity="0.12">
-              <circle cx="160" cy="0" r="5" fill="#4F7CFF" />
-              <circle cx="240" cy="60" r="6" fill="#4F7CFF" />
-              <circle cx="100" cy="-140" r="4" fill="#4F7CFF" />
+          {/* Grid técnico fino */}
+          <rect width="1440" height="900" fill="url(#finegrid)" />
+          {/* Marcas de registro esquinas */}
+          {[
+            { cx: 60,   cy: 60   },
+            { cx: 1380, cy: 60   },
+            { cx: 60,   cy: 840  },
+            { cx: 1380, cy: 840  },
+          ].map((m, i) => (
+            <g key={i} opacity="0.12" stroke="#00E5FF" strokeWidth="1" fill="none">
+              <circle cx={m.cx} cy={m.cy} r="12" />
+              <line x1={m.cx - 18} y1={m.cy} x2={m.cx + 18} y2={m.cy} />
+              <line x1={m.cx} y1={m.cy - 18} x2={m.cx} y2={m.cy + 18} />
             </g>
-            <g transform="rotate(75)" opacity="0.1">
-              <circle cx="200" cy="-30" r="5" fill="#EF4444" />
-              <circle cx="120" cy="120" r="4" fill="#EF4444" />
-            </g>
-            <g transform="rotate(0)" opacity="0.1">
-              <circle cx="-180" cy="80" r="5" fill="#F59E0B" />
-              <circle cx="-100" cy="-160" r="4" fill="#F59E0B" />
-            </g>
-            <g transform="rotate(45)" opacity="0.08">
-              <circle cx="-220" cy="-60" r="4" fill="#0F172A" />
-            </g>
-          </g>
-
-          {/* Marcas de registro dispersas */}
-          <g opacity="0.14" stroke={COLORS.dark} strokeWidth="1" fill="none">
-            <circle cx="1180" cy="160" r="16" />
-            <line x1="1180" y1="132" x2="1180" y2="188" />
-            <line x1="1152" y1="160" x2="1208" y2="160" />
-          </g>
-          <g opacity="0.12" stroke={COLORS.primary} strokeWidth="1" fill="none">
-            <circle cx="1480" cy="640" r="13" />
-            <line x1="1480" y1="617" x2="1480" y2="663" />
-            <line x1="1457" y1="640" x2="1503" y2="640" />
-          </g>
-
-          {/* Cruces de alineacion */}
-          <g opacity="0.1" stroke={COLORS.dark} strokeWidth="1">
-            <line x1="1340" y1="80" x2="1340" y2="110" />
-            <line x1="1325" y1="95" x2="1355" y2="95" />
-          </g>
-          <g opacity="0.1" stroke={COLORS.secondary} strokeWidth="1">
-            <line x1="1020" y1="900" x2="1020" y2="930" />
-            <line x1="1005" y1="915" x2="1035" y2="915" />
-          </g>
-
-          {/* Lineas tecnicas finas */}
-          <g opacity="0.08" stroke={COLORS.dark} strokeWidth="0.75">
-            <line x1="950" y1="0" x2="950" y2="1080" />
-            <path d="M 950 540 C 1200 480, 1400 700, 1700 600" fill="none" />
-          </g>
-
-          {/* Puntos de semitono dispersos extra */}
-          <rect x="1300" y="200" width="300" height="300" fill="url(#halftoneScatter)" opacity="0.06" />
-
-          {/* Particulas flotantes animadas */}
-          <g>
-            {[
-              { x: 120, y: 140, r: 3, c: COLORS.primary, dur: "9s", dy: -26 },
-              { x: 340, y: 320, r: 2.4, c: COLORS.secondary, dur: "11s", dy: 22 },
-              { x: 560, y: 90, r: 2, c: COLORS.warning, dur: "8s", dy: -18 },
-              { x: 760, y: 420, r: 3.2, c: COLORS.primary, dur: "13s", dy: 28 },
-              { x: 220, y: 560, r: 2.2, c: COLORS.error, dur: "10s", dy: -20 },
-              { x: 880, y: 180, r: 2.6, c: COLORS.secondary, dur: "12s", dy: 24 },
-              { x: 1050, y: 520, r: 2, c: COLORS.success, dur: "9.5s", dy: -22 },
-              { x: 1300, y: 760, r: 3, c: COLORS.primary, dur: "14s", dy: 30 },
-              { x: 1550, y: 300, r: 2.4, c: COLORS.warning, dur: "10.5s", dy: -24 },
-              { x: 1750, y: 850, r: 2.8, c: COLORS.error, dur: "11.5s", dy: 26 },
-              { x: 480, y: 700, r: 2, c: COLORS.success, dur: "8.5s", dy: -16 },
-              { x: 1150, y: 920, r: 2.6, c: COLORS.secondary, dur: "12.5s", dy: 20 },
-            ].map((p, i) => (
-              <circle key={i} cx={p.x} cy={p.y} r={p.r} fill={p.c} opacity="0.16">
-                <animateTransform
-                  attributeName="transform"
-                  type="translate"
-                  values={`0 0; 0 ${p.dy}; 0 0`}
-                  dur={p.dur}
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="opacity"
-                  values="0.16;0.3;0.16"
-                  dur={p.dur}
-                  repeatCount="indefinite"
-                />
-              </circle>
-            ))}
-          </g>
+          ))}
+          {/* Partículas flotantes */}
+          {[
+            { x: 90,   y: 140,  r: 1.1, c: "#00E5FF", dur: "9s",   dy: -16 },
+            { x: 260,  y: 280,  r: 0.8, c: "#fff",    dur: "12s",  dy: 14  },
+            { x: 1180, y: 160,  r: 1,   c: "#FF2D78", dur: "10s",  dy: -18 },
+            { x: 1340, y: 400,  r: 1.3, c: "#00E5FF", dur: "13s",  dy: 20  },
+            { x: 140,  y: 680,  r: 0.9, c: "#FF2D78", dur: "8s",   dy: -14 },
+            { x: 1260, y: 720,  r: 1,   c: "#fff",    dur: "11s",  dy: 16  },
+            { x: 700,  y: 60,   r: 0.8, c: "#00E5FF", dur: "7.5s", dy: -12 },
+            { x: 420,  y: 820,  r: 1.2, c: "#FF2D78", dur: "14s",  dy: 18  },
+            { x: 980,  y: 800,  r: 0.7, c: "#fff",    dur: "10.5s",dy: -16 },
+          ].map((p, i) => (
+            <circle key={i} cx={p.x} cy={p.y} r={p.r} fill={p.c} opacity="0.45">
+              <animateTransform attributeName="transform" type="translate" values={`0 0;0 ${p.dy};0 0`} dur={p.dur} repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.45;0.75;0.45" dur={p.dur} repeatCount="indefinite" />
+            </circle>
+          ))}
         </svg>
 
-
-        {/* NAVBAR flotante */}
-        <nav
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "14px 28px",
-            maxWidth: 1240,
-            margin: "16px auto 0",
-            position: "relative",
-            zIndex: 1,
-            background: "#ffffff",
-            backdropFilter: "blur(12px)",
-            borderRadius: 16,
-            border: `1px solid ${COLORS.border}`,
-            boxShadow: "0 8px 30px rgba(15,23,42,0.12)",
-          }}
-        >
+        {/* NAVBAR transparente */}
+        <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 40px", position: "relative", zIndex: 1, background: "transparent", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-              <div
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 9,
-                  background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 700,
-                  fontSize: 13,
-                  color: "#fff",
-                }}
-              >
-                P
-              </div>
-              <span style={{ fontWeight: 700, fontSize: 16, color: COLORS.dark }}>PrintPDF.ai</span>
+              <div style={{ width: 30, height: 30, borderRadius: 9, background: "linear-gradient(135deg, #00E5FF, #FF2D78)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, color: "#fff" }}>P</div>
+              <span style={{ fontWeight: 700, fontSize: 16, color: "rgba(255,255,255,0.9)" }}>PrintPDF.ai</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 24, fontSize: 14, color: "#475569" }}>
-              <a href="#analiza" style={navLinkStyle}>Como funciona</a>
-              <a href="#correccion-profesional" style={navLinkStyle}>Correccion profesional</a>
-              <a href="#casos" style={navLinkStyle}>Casos de uso</a>
+            <div style={{ display: "flex", gap: 24, fontSize: 14 }}>
+              <a href="#analiza" style={{ color: "rgba(255,255,255,0.55)", textDecoration: "none", fontWeight: 500 }}>Como funciona</a>
+              <a href="#correccion-profesional" style={{ color: "rgba(255,255,255,0.55)", textDecoration: "none", fontWeight: 500 }}>Correccion profesional</a>
+              <a href="#casos" style={{ color: "rgba(255,255,255,0.55)", textDecoration: "none", fontWeight: 500 }}>Casos de uso</a>
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 13, color: COLORS.dark, fontWeight: 500, padding: "8px 14px" }}>Iniciar sesion</span>
-            <a
-              href="#uploader"
-              style={{
-                padding: "9px 18px",
-                fontSize: 13,
-                fontWeight: 600,
-                background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
-                color: "#fff",
-                borderRadius: 9,
-                textDecoration: "none",
-              }}
-            >
+            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Iniciar sesion</span>
+            <a href="#uploader" style={{ padding: "9px 18px", fontSize: 13, fontWeight: 600, background: "linear-gradient(135deg, #00E5FF, #FF2D78)", color: "#fff", borderRadius: 9, textDecoration: "none" }}>
               Probar gratis
             </a>
           </div>
         </nav>
 
-        {/* HERO content - CTA unificado, uploader como elemento central */}
-        <div
-          style={{
-            maxWidth: 760,
-            margin: "0 auto",
-            padding: "64px 28px 56px",
-            textAlign: "center",
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 7,
-              padding: "6px 14px",
-              borderRadius: 999,
-              background: "rgba(255,255,255,0.18)",
-              border: "1px solid rgba(255,255,255,0.35)",
-              backdropFilter: "blur(8px)",
-              fontSize: 11.5,
-              fontWeight: 600,
-              letterSpacing: "0.03em",
-              color: "#fff",
-              marginBottom: 22,
-            }}
-          >
-            <span style={{ width: 6, height: 6, borderRadius: 99, background: "#fff" }} />
-            TU DEPARTAMENTO DE PREPRENSA EN LA NUBE
+        {/* CONTENIDO CENTRADO */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px 24px 64px", position: "relative", zIndex: 1, textAlign: "center" }}>
+
+          {/* Badge */}
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "5px 14px", borderRadius: 999, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", fontSize: 11, fontWeight: 600, letterSpacing: "0.07em", color: "rgba(255,255,255,0.6)", marginBottom: 24 }}>
+            <span style={{ width: 5, height: 5, borderRadius: 99, background: "#00E5FF", display: "inline-block" }} />
+            PREPRENSA AUTOMATIZADA
           </div>
-          <h1
-            style={{
-              fontSize: 44,
-              lineHeight: 1.12,
-              fontWeight: 800,
-              color: "#fff",
-              marginBottom: 16,
-              letterSpacing: "-0.02em",
-              textShadow: "0 2px 24px rgba(0,0,0,0.15)",
-            }}
-          >
-            Tu departamento de preprensa{" "}
-            <span style={{ color: "#FEF3C7" }}>
-              en la nube
+
+          {/* H1 */}
+          <h1 style={{
+            fontFamily: "var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif",
+            fontSize: 64,
+            lineHeight: 0.95,
+            fontWeight: 700,
+            letterSpacing: "-0.04em",
+            color: "#fff",
+            marginBottom: 32,
+            maxWidth: 760,
+          }}>
+            <span style={{ display: "block" }}>Analiza tu PDF.</span>
+            <span style={{
+              display: "block",
+              background: "linear-gradient(90deg, #00E5FF 0%, #7C3AED 50%, #FF2D78 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}>
+              Antes de imprimir.
             </span>
           </h1>
-          <p style={{ fontSize: 16.5, color: "rgba(255,255,255,0.88)", marginBottom: 36, maxWidth: 420, lineHeight: 1.55, margin: "0 auto 36px" }}>
-            Sube tu PDF. Detectamos errores antes de imprimir.
+
+          {/* Subtítulo */}
+          <p style={{
+            fontFamily: "var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif",
+            fontSize: 20,
+            fontWeight: 400,
+            lineHeight: 1.6,
+            letterSpacing: "-0.01em",
+            color: "rgba(255,255,255,0.45)",
+            marginBottom: 56,
+            maxWidth: 460,
+          }}>
+            Detectamos errores de preprensa antes de que lleguen a la imprenta.
           </p>
 
-          {/* UPLOADER - unico punto de entrada */}
+          {/* UPLOADER grande — estilo WeTransfer */}
           <div
             id="uploader"
-            style={{
-              background: "#fff",
-              borderRadius: 20,
-              padding: 26,
-              border: `1px solid ${COLORS.border}`,
-              boxShadow: "0 24px 60px rgba(15,23,42,0.08)",
-              textAlign: "left",
-              maxWidth: 520,
-              margin: "0 auto",
-            }}
+            style={{ width: "100%", maxWidth: 640, marginBottom: 16 }}
           >
             <div
-              onDragOver={(e) => {
-                e.preventDefault();
-                setArrastrando(true);
-              }}
+              onDragOver={(e) => { e.preventDefault(); setArrastrando(true); }}
               onDragLeave={() => setArrastrando(false)}
               onDrop={handleDrop}
               onClick={() => document.getElementById("file-input")?.click()}
               style={{
-                border: `1.5px dashed ${arrastrando ? COLORS.primary : "#d4d4d8"}`,
-                borderRadius: 14,
-                padding: "40px 16px",
-                textAlign: "center",
+                border: `2px dashed ${arrastrando ? "#00E5FF" : "rgba(255,255,255,0.15)"}`,
+                borderRadius: 20,
+                padding: "56px 32px",
                 cursor: "pointer",
-                background: arrastrando ? "#f5f3ff" : "#fafafc",
-                marginBottom: 14,
+                background: arrastrando ? "rgba(0,229,255,0.05)" : "rgba(255,255,255,0.03)",
+                transition: "border-color 0.2s, background 0.2s",
+                marginBottom: 12,
               }}
             >
-              <div
-                style={{
-                  width: 48,
-                  height: 48,
-                  margin: "0 auto 12px",
-                  borderRadius: 14,
-                  background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 20,
-                  color: "#fff",
-                }}
-              >
-                ↑
+              {/* Icono upload */}
+              <div style={{ width: 64, height: 64, margin: "0 auto 20px", borderRadius: 18, background: "linear-gradient(135deg, #00E5FF, #FF2D78)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, color: "#fff", boxShadow: "0 12px 32px rgba(0,229,255,0.25)" }}>↑</div>
+              <div style={{ fontWeight: 700, fontSize: 18, color: "#fff", marginBottom: 8 }}>
+                {archivo ? archivo.name : "Arrastra tu PDF aquí"}
               </div>
-              <div style={{ fontWeight: 700, fontSize: 15.5, color: COLORS.dark, marginBottom: 4 }}>
-                {archivo ? archivo.name : "Arrastra tu PDF aqui"}
+              <div style={{ fontSize: 13.5, color: "rgba(255,255,255,0.38)" }}>
+                {archivo ? "Listo para analizar" : "o haz clic para seleccionar · Max 2 GB"}
               </div>
-              <div style={{ fontSize: 12.5, color: "#94a3b8" }}>
-                {archivo ? "Listo para analizar" : "o haz clic para seleccionar · Max 2GB"}
-              </div>
-              <input
-                id="file-input"
-                type="file"
-                accept=".pdf"
-                onChange={(e) => setArchivo(e.target.files?.[0] || null)}
-                style={{ display: "none" }}
-              />
+              <input id="file-input" type="file" accept=".pdf" onChange={(e) => setArchivo(e.target.files?.[0] || null)} style={{ display: "none" }} />
             </div>
 
-            {/* Acordeon opcional de proceso de impresion */}
-            <button
-              onClick={() => setMostrarOpciones((v) => !v)}
-              style={{
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "9px 2px",
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                fontSize: 12.5,
-                fontWeight: 600,
-                color: "#64748b",
-                marginBottom: mostrarOpciones ? 10 : 14,
-              }}
-            >
+            {/* Proceso acordeón */}
+            <button onClick={() => setMostrarOpciones((v) => !v)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 4px", background: "transparent", border: "none", cursor: "pointer", fontSize: 12.5, fontWeight: 600, color: "rgba(255,255,255,0.35)", marginBottom: mostrarOpciones ? 10 : 16 }}>
               <span>Ajustar proceso de impresion (opcional)</span>
-              <span style={{ transform: mostrarOpciones ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>
-                ⌄
-              </span>
+              <span style={{ transform: mostrarOpciones ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>⌄</span>
             </button>
             {mostrarOpciones && (
-              <select
-                value={proceso}
-                onChange={(e) => setProceso(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "11px 14px",
-                  fontSize: 14,
-                  borderRadius: 10,
-                  border: `1px solid ${COLORS.border}`,
-                  background: "#fafafc",
-                  color: COLORS.dark,
-                  marginBottom: 14,
-                  outline: "none",
-                }}
-              >
-                {PROCESOS.map((p) => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
+              <select value={proceso} onChange={(e) => setProceso(e.target.value)} style={{ width: "100%", padding: "11px 14px", fontSize: 14, borderRadius: 10, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.07)", color: "#fff", marginBottom: 14, outline: "none" }}>
+                {PROCESOS.map((p) => (<option key={p} value={p} style={{ background: "#1a1830", color: "#fff" }}>{p}</option>))}
               </select>
             )}
 
-            <button
-              onClick={() => analizar(null)}
-              disabled={cargando}
-              style={{
-                width: "100%",
-                padding: 14,
-                fontSize: 14.5,
-                fontWeight: 600,
-                background: cargando ? "#cbd5e1" : `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
-                color: "#fff",
-                border: "none",
-                borderRadius: 11,
-                cursor: cargando ? "default" : "pointer",
-                boxShadow: cargando ? "none" : "0 8px 24px rgba(109,92,255,0.25)",
-              }}
-            >
+            <button onClick={() => analizar(null)} disabled={cargando} style={{ width: "100%", padding: 16, fontSize: 15, fontWeight: 700, background: cargando ? "rgba(255,255,255,0.08)" : "linear-gradient(135deg, #00E5FF, #FF2D78)", color: cargando ? "rgba(255,255,255,0.35)" : "#fff", border: "none", borderRadius: 13, cursor: cargando ? "default" : "pointer", boxShadow: cargando ? "none" : "0 8px 28px rgba(0,229,255,0.22)" }}>
               {cargando ? "Analizando..." : "Analizar PDF →"}
             </button>
-            <div style={{ fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 10 }}>
-              🔒 Tus archivos estan seguros y confidenciales
+
+            <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.25)", textAlign: "center", marginTop: 12 }}>
+              🔒 Tus archivos son privados y se eliminan tras el análisis
             </div>
           </div>
 
-          {/* Trust badges con iconos */}
-          <div style={{ display: "flex", gap: 28, justifyContent: "center", marginTop: 34, flexWrap: "wrap" }}>
-            {[
-              { icon: "⚡", t: "Rapido" },
-              { icon: "🎯", t: "Preciso" },
-              { icon: "⚙", t: "Automatico" },
-              { icon: "🛡", t: "Confiable" },
-            ].map((b) => (
-              <div key={b.t} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13, color: "rgba(255,255,255,0.92)", fontWeight: 500 }}>
-                <span style={{ fontSize: 14 }}>{b.icon}</span>
-                {b.t}
+          {/* Trust badges */}
+          <div style={{ display: "flex", gap: 32, justifyContent: "center", marginBottom: 56, flexWrap: "wrap" }}>
+            {[{ icon: "⚡", t: "Rapido" }, { icon: "🎯", t: "Preciso" }, { icon: "⚙", t: "Automatico" }, { icon: "🛡", t: "Confiable" }].map((b) => (
+              <div key={b.t} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: "rgba(255,255,255,0.35)", fontWeight: 500 }}>
+                <span style={{ fontSize: 13 }}>{b.icon}</span>{b.t}
               </div>
             ))}
           </div>
+
+          {/* TARJETA DE INSPECCIÓN ANIMADA */}
+          <div style={{ width: "100%", maxWidth: 520 }}>
+            {/* Label */}
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.07em", color: "rgba(255,255,255,0.3)", marginBottom: 12, textAlign: "left" }}>
+              EJEMPLO DE ANÁLISIS EN TIEMPO REAL
+            </div>
+            <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(0,229,255,0.18)", borderRadius: 18, padding: 22, backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", boxShadow: "0 0 48px rgba(0,229,255,0.05)", textAlign: "left" }}>
+
+              {/* Header archivo */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, paddingBottom: 14, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                <div style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(0,229,255,0.1)", border: "1px solid rgba(0,229,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, flexShrink: 0 }}>📄</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>Afiche_Verano.pdf</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>4.2 MB · 1 página · Offset Estucado</div>
+                </div>
+                {panelFase === 0
+                  ? <div style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.1)", borderTopColor: "#00E5FF", animation: "spin 0.8s linear infinite", flexShrink: 0 }} />
+                  : <div style={{ padding: "3px 8px", borderRadius: 6, background: "rgba(34,197,94,0.12)", border: "1px solid #22C55E", fontSize: 10, fontWeight: 700, color: "#22C55E" }}>LISTO</div>
+                }
+              </div>
+
+              {/* Estado analizando — solo fase 0 */}
+              {panelFase === 0 && (
+                <div style={{ fontSize: 12.5, color: "rgba(255,255,255,0.45)", marginBottom: 12, fontStyle: "italic" }}>Analizando archivo...</div>
+              )}
+
+              {/* Checklist animado */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 16 }}>
+                {PANEL_CHECKS.map((item, i) => (
+                  <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 9, opacity: panelFase > i ? 1 : 0, transform: panelFase > i ? "translateX(0)" : "translateX(-8px)", transition: "opacity 0.25s ease, transform 0.25s ease" }}>
+                    <span style={{ width: 17, height: 17, borderRadius: "50%", background: item.ok ? "rgba(34,197,94,0.12)" : "rgba(245,158,11,0.12)", border: `1px solid ${item.ok ? "#22C55E" : "#F59E0B"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, flexShrink: 0, color: item.ok ? "#22C55E" : "#F59E0B", fontWeight: 800 }}>
+                      {item.ok ? "✓" : "⚠"}
+                    </span>
+                    <span style={{ fontSize: 13, color: "rgba(255,255,255,0.78)", flex: 1 }}>{item.label}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: item.ok ? "#22C55E" : "#F59E0B" }}>{item.ok ? "OK" : "Advertencia"}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Score */}
+              <div style={{ opacity: panelFase >= 7 ? 1 : 0, transition: "opacity 0.4s ease", padding: "13px 15px", borderRadius: 12, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", marginBottom: 13 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", letterSpacing: "0.05em" }}>PRINT READY SCORE</span>
+                  <span style={{ fontSize: 21, fontWeight: 800, background: "linear-gradient(90deg, #00E5FF, #FF2D78)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                    82<span style={{ fontSize: 12 }}>/100</span>
+                  </span>
+                </div>
+                <div style={{ height: 5, borderRadius: 99, background: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: panelFase >= 7 ? "82%" : "0%", background: "linear-gradient(90deg, #00E5FF, #FF2D78)", borderRadius: 99, transition: "width 1s cubic-bezier(0.4,0,0.2,1)" }} />
+                </div>
+              </div>
+
+              {/* Botón */}
+              <button style={{ width: "100%", padding: "10px 16px", fontSize: 13.5, fontWeight: 700, background: "linear-gradient(135deg, #00E5FF, #FF2D78)", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", opacity: panelFase >= 8 ? 1 : 0, transition: "opacity 0.3s ease", boxShadow: "0 5px 18px rgba(0,229,255,0.18)" }}>
+                Optimizar PDF →
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -1212,10 +1014,4 @@ const inputStyle: React.CSSProperties = {
   marginBottom: 12,
   outline: "none",
   boxSizing: "border-box",
-};
-
-const navLinkStyle: React.CSSProperties = {
-  color: "#475569",
-  textDecoration: "none",
-  fontWeight: 500,
 };
